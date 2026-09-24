@@ -17,6 +17,7 @@ import path from 'node:path';
 import { setSettingsPlace } from './config.js';
 import { createServer } from './index.js';
 import { createLogger } from './log.js';
+import { YandexLogin } from './login.js';
 import { RemoteHost } from './remote/host.js';
 import { escapeHtml } from './remote/page.js';
 import { SettingsStore } from './remote/settings.js';
@@ -52,6 +53,19 @@ setSettingsPlace(`the connector settings page ${base}/settings`);
 
 const settings = new SettingsStore({ file: path.join(dataDir, 'settings.json'), manifest, logger });
 
+// Вход через аккаунт Яндекса: страницы /login и /login/callback, продление токена.
+// host появится ниже — к моменту вызова onToken он уже создан.
+let host;
+const login = new YandexLogin({
+  publicUrl: base,
+  settings,
+  file: path.join(dataDir, 'oauth.json'),
+  logger,
+  onToken: () => host.reload(),
+  oauthUrl: process.env.YANDEX_OAUTH_URL || undefined,
+  loginUrl: process.env.YANDEX_LOGIN_URL || undefined,
+});
+
 async function createApp(env) {
   const { server, config, tools } = createServer({ env, logger });
   logger.info(
@@ -61,23 +75,34 @@ async function createApp(env) {
   return {
     mcp: server,
     problems: config.problems,
+    routes: { '/login': (req, res, ctx) => login.handle(req, res, ctx) },
     async close() {
       server.closeSubscriptions();
     },
   };
 }
 
-const host = new RemoteHost({
+const basePath = new URL(base).pathname;
+host = new RemoteHost({
   title: TITLE,
   publicUrl: base,
   gatewaySecret,
   settings,
   createApp,
   logger,
-  intro:
-    `Адрес коннектора для Claude: <b>${escapeHtml(base)}</b>. Токен хранится на этом сервере и уходит только в API Трекера. ` +
-    'Пустое секретное поле оставляет сохранённое значение.',
-  links: [{ href: '/', text: 'Все коннекторы, подключённые приложения и пароль владельца' }],
+  intro: () => {
+    const status = login.describe();
+    return (
+      `Адрес коннектора для Claude: <b>${escapeHtml(base)}</b>. Токен хранится на этом сервере и уходит только в API Трекера. ` +
+      'Пустое секретное поле оставляет сохранённое значение.' +
+      `<br><br><a href="${escapeHtml(basePath)}/login"><b>Войти через Яндекс</b></a> — токен запишется сам (нужны ClientID и Client secret приложения, Redirect URI — <code>${escapeHtml(login.redirectUri)}</code>).` +
+      (status ? `<br>${escapeHtml(status)}` : '')
+    );
+  },
+  links: [
+    { href: `${basePath}/login`, text: 'Войти через Яндекс', note: 'получить токен своим аккаунтом' },
+    { href: '/', text: 'Все коннекторы, подключённые приложения и пароль владельца' },
+  ],
 });
 
 process.on('unhandledRejection', (err) => logger.error('необработанная ошибка (promise):', err));
@@ -85,12 +110,14 @@ process.on('uncaughtException', (err) => logger.error('необработанн�
 
 const address = await host.start({ host: process.env.HOST || '127.0.0.1', port: Number(process.env.PORT || 8080) });
 logger.info(`v${VERSION} на Node ${process.version}: ${base} ← http://${address.address}:${address.port}; данные: ${dataDir}`);
+login.start();
 
 let stopping = false;
 async function shutdown() {
   if (stopping) return;
   stopping = true;
   setTimeout(() => process.exit(0), 5000).unref();
+  login.stop();
   await host.stop().catch((err) => logger.error(`остановка: ${err?.message ?? err}`));
   process.exit(0);
 }

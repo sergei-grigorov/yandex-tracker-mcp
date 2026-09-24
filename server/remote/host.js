@@ -51,6 +51,7 @@ function routeMatch(table, rest) {
 }
 
 export class RemoteHost {
+  // intro — HTML над формой настроек или функция, которая его возвращает.
   // createApp(env) → { mcp, problems?, routes?, upgrades?, close() }:
   //   routes   — { '/accounts': (req, res, ctx) => … } страницы только для владельца;
   //   upgrades — { '/alerts': (req, socket, head, ctx) => … } WebSocket с токеном в адресе;
@@ -232,7 +233,7 @@ export class RemoteHost {
         fieldOptions: this.fieldOptions,
         problems: this.app ? (this.app.problems ?? []) : [`Коннектор не запустился с этими настройками: ${this.failure}`],
         links: this.links,
-        intro: this.intro,
+        intro: typeof this.intro === 'function' ? this.intro() : this.intro,
         footer: this.footer,
         ...extra,
       });

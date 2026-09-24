@@ -8,6 +8,8 @@
 //   TRACKER_DEFAULT_QUEUE  очередь по умолчанию для новых задач
 //   TRACKER_ALLOW_WRITE    true — создание и изменение задач, комментарии, время
 //   TRACKER_ALLOW_DELETE   true — удаление (комментарии, связи, вложения…) прямыми запросами
+//   TRACKER_OAUTH_CLIENT_ID, TRACKER_OAUTH_CLIENT_SECRET — приложение для входа через Яндекс
+//                          (только на сервере: login.js берёт их из настроек сам)
 // Только переменными окружения:
 //   TRACKER_API_URL        адрес API (https://api.tracker.yandex.net)
 //   TRACKER_TIMEOUT_MS     таймаут запроса к API (30000)
@@ -15,6 +17,8 @@
 
 export const SETTING_TITLES = {
   token: 'OAuth-токен',
+  client_id: 'ClientID приложения',
+  client_secret: 'Client secret приложения',
   org_id: 'ID организации',
   org_type: 'Тип организации',
   default_queue: 'Очередь по умолчанию',
