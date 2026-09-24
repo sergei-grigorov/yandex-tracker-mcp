@@ -1,0 +1,25 @@
+{
+  "name": "yandex-tracker-mcp",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Коннектор Claude (MCP) для Яндекс Трекера: поиск и чтение задач, создание и правка, статусы, комментарии, связи, учёт времени, вложения",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sergei-grigorov/yandex-tracker-mcp.git"
+  },
+  "type": "module",
+  "main": "server/index.js",
+  "bin": {
+    "yandex-tracker-mcp": "server/index.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node server/index.js",
+    "serve": "node server/serve.js",
+    "test": "node --test \"test/*.test.js\"",
+    "validate": "npx -y @anthropic-ai/mcpb@2.1.2 validate manifest.json",
+    "pack": "npx -y @anthropic-ai/mcpb@2.1.2 pack . dist/yandex-tracker.mcpb"
+  }
+}

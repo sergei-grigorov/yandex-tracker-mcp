@@ -1,0 +1,176 @@
+{
+  "manifest_version": "0.3",
+  "name": "yandex-tracker-mcp",
+  "display_name": "Yandex Tracker",
+  "version": "1.0.0",
+  "description": "Яндекс Трекер: поиск и чтение задач, создание и правка, статусы, комментарии, связи, учёт времени, вложения и любой метод API.",
+  "long_description": "Коннектор к API Яндекс Трекера (v3) от имени владельца токена.\n\n- **Поиск и чтение.** Язык запросов Трекера, фильтры, сохранённые фильтры; задача целиком с комментариями, переходами, связями, вложениями, списанным временем и историей.\n- **Работа с задачами.** Создание, правка полей (включая локальные поля очереди), смена статуса по рабочему процессу с резолюцией и комментарием, комментарии с призывом коллег, связи, учёт времени, вложения.\n- **Справочники.** Очереди с типами задач, статусами и резолюциями, поля, пользователи.\n- **Любой метод API.** Доски, спринты, проекты, массовые изменения — прямыми запросами.\n- **Безопасность.** Изменения можно выключить целиком; удаление через API по умолчанию выключено.\n\nТокен — OAuth-токен Яндекса с доступом к Трекеру (или IAM-токен Yandex Cloud). Он хранится в настройках коннектора и уходит только в API Трекера.",
+  "author": {
+    "name": "sergei-grigorov",
+    "url": "https://github.com/sergei-grigorov"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sergei-grigorov/yandex-tracker-mcp"
+  },
+  "homepage": "https://github.com/sergei-grigorov/yandex-tracker-mcp",
+  "documentation": "https://github.com/sergei-grigorov/yandex-tracker-mcp#readme",
+  "support": "https://github.com/sergei-grigorov/yandex-tracker-mcp/issues",
+  "keywords": [
+    "yandex",
+    "tracker",
+    "issues",
+    "tasks",
+    "project management",
+    "jira",
+    "agile"
+  ],
+  "privacy_policies": [
+    "https://yandex.ru/legal/confidential/"
+  ],
+  "server": {
+    "type": "node",
+    "entry_point": "server/index.js",
+    "mcp_config": {
+      "command": "node",
+      "args": [
+        "${__dirname}/server/index.js"
+      ],
+      "env": {
+        "TRACKER_TOKEN": "${user_config.token}",
+        "TRACKER_ORG_ID": "${user_config.org_id}",
+        "TRACKER_ORG_TYPE": "${user_config.org_type}",
+        "TRACKER_DEFAULT_QUEUE": "${user_config.default_queue}",
+        "TRACKER_ALLOW_WRITE": "${user_config.allow_write}",
+        "TRACKER_ALLOW_DELETE": "${user_config.allow_delete}"
+      }
+    }
+  },
+  "tools": [
+    {
+      "name": "connector_status",
+      "description": "Настройки коннектора и проверка токена"
+    },
+    {
+      "name": "search_issues",
+      "description": "Поиск задач: язык запросов Трекера, фильтр, ключи, очередь"
+    },
+    {
+      "name": "get_issue",
+      "description": "Задача целиком: поля, описание, комментарии, переходы, связи, вложения, время"
+    },
+    {
+      "name": "create_issue",
+      "description": "Создать задачу (если изменения разрешены)"
+    },
+    {
+      "name": "update_issue",
+      "description": "Изменить поля задачи (если изменения разрешены)"
+    },
+    {
+      "name": "change_status",
+      "description": "Сменить статус по переходу рабочего процесса (если изменения разрешены)"
+    },
+    {
+      "name": "add_comment",
+      "description": "Добавить комментарий, призвать коллег (если изменения разрешены)"
+    },
+    {
+      "name": "edit_comment",
+      "description": "Изменить комментарий (если изменения разрешены)"
+    },
+    {
+      "name": "link_issues",
+      "description": "Связать задачи (если изменения разрешены)"
+    },
+    {
+      "name": "log_work",
+      "description": "Записать затраченное время (если изменения разрешены)"
+    },
+    {
+      "name": "list_queues",
+      "description": "Очереди"
+    },
+    {
+      "name": "get_queue",
+      "description": "Очередь: типы задач, статусы, резолюции, компоненты, локальные поля"
+    },
+    {
+      "name": "list_fields",
+      "description": "Поля задач: ключи, типы, допустимые значения"
+    },
+    {
+      "name": "find_users",
+      "description": "Поиск пользователей по имени, логину, почте"
+    },
+    {
+      "name": "get_attachment",
+      "description": "Открыть вложение: текст или картинку"
+    },
+    {
+      "name": "attach_file",
+      "description": "Приложить файл к задаче (если изменения разрешены)"
+    },
+    {
+      "name": "send_read_request",
+      "description": "Любой метод чтения API Трекера: доски, спринты, проекты, история"
+    },
+    {
+      "name": "send_write_request",
+      "description": "Любой изменяющий метод API: массовые изменения, перенос, чек-листы (если изменения разрешены)"
+    }
+  ],
+  "tools_generated": false,
+  "prompts_generated": false,
+  "compatibility": {
+    "platforms": [
+      "darwin",
+      "win32",
+      "linux"
+    ],
+    "runtimes": {
+      "node": ">=22.0.0"
+    }
+  },
+  "user_config": {
+    "token": {
+      "type": "string",
+      "title": "OAuth-токен",
+      "description": "Токен Яндекса с доступом к Трекеру: создайте приложение на oauth.yandex.ru с правами «Чтение из трекера» и «Запись в трекер» (tracker:read, tracker:write) и получите токен по ссылке https://oauth.yandex.ru/authorize?response_type=token&client_id=<ClientID приложения>. Подойдёт и IAM-токен Yandex Cloud (t1.…), но он живёт 12 часов.",
+      "sensitive": true,
+      "required": true
+    },
+    "org_id": {
+      "type": "string",
+      "title": "ID организации",
+      "description": "Трекер → Администрирование → Организации: ID организации Яндекс 360 (число) или Yandex Cloud (например, bpf…).",
+      "required": true
+    },
+    "org_type": {
+      "type": "string",
+      "title": "Тип организации",
+      "description": "360 — Яндекс 360 (заголовок X-Org-ID), cloud — Yandex Cloud Organization (X-Cloud-Org-ID). Пусто — по виду ID: число — Яндекс 360.",
+      "required": false
+    },
+    "default_queue": {
+      "type": "string",
+      "title": "Очередь по умолчанию",
+      "description": "Ключ очереди для новых задач, если Claude не указал другую (например, TEST).",
+      "required": false
+    },
+    "allow_write": {
+      "type": "boolean",
+      "title": "Разрешить изменения",
+      "description": "Создание и правка задач, смена статусов, комментарии, связи, учёт времени, вложения, изменяющие методы API. Выключите, чтобы Claude только читал.",
+      "default": true,
+      "required": false
+    },
+    "allow_delete": {
+      "type": "boolean",
+      "title": "Разрешить удаление",
+      "description": "Методы API DELETE: удаление комментариев, связей, вложений, записей времени и т. п. Удалённое не восстановить.",
+      "default": false,
+      "required": false
+    }
+  }
+}
